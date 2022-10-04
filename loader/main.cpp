@@ -1813,7 +1813,6 @@ void to_native(void)
 }
 
 int main(void) {
-    // return 0;
     printf("start ana\n");
 
     unsigned long ts, te;
@@ -1822,31 +1821,15 @@ int main(void) {
     te = rdtsc();
     printf("cost %lu\n", te- ts);
 
-    //return 0;
-    /* init execState */
     unsigned long adds, adde;
     adds = 0x0;
     adde = 0xfffffffffffff000;
     
-    // asm volatile ("movq $0xffff, %rax; \n\t"
-    //         "vmcall; \n\t");
-    
     execState = new ExecState(adds, adde);
-  
-    // printf ("=========\n");
-    // return 0;
-    // target_ctx = (struct target_context*)malloc(sizeof(struct target_context));
-    // return 0; 
     init_global_var();
-
     dump_regs();
-
     get_target();
-    // return 0;
-
     execState->InitRediPagePool();
-   
-    // return 0;
 
     execState->MoniStartOfSE(0xffffffff810b9710);//addr of x64_sys_setpriority
     //execState->MoniStartOfSE(0xffffffff810b5fb0);//addr of x64_sys_getpriority
@@ -1859,37 +1842,10 @@ int main(void) {
     //if uncommenting this chenge the declaration of tmp in centralhub.cpp
     //execState->MoniStartOfSE(0xffffffff810041b0);//addr of indirect call in do_syscall_64 
     
-    //execState->MoniStartOfSE(0x5555555546f5);
-
-    
     to_native();
 
     init_t_ctx(); 
     dump_regs(); 
-
-    // unsigned long addr;
-    // int size;
-    // execState->declareSymbolicObject(addr, size);
-
-    // asm volatile ("movq $0xffff, %rax; \n\t"
-    //         "vmcall; \n\t");
-  
-
-    execState->SynRegsFromNative(&machRegs);
-    
-    // // dump_regs();
-    // // return 0;
-    // int index= x86_64::rdx;
-    // // int index= Arch_x86_64;
-    // std::string name = "rdx";
-    // execState->declareSymbolicRegister(index, 8, &name[0]);
-    execState->processAt(machRegs.regs.rip);
-    return 0;
-
-    //invoke fatctrl;
-    
-
-    // oasis_run_emulation();
 
     return 0;
 }
