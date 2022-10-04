@@ -1813,7 +1813,7 @@ void to_native(void)
 }
 
 int main(void) {
-    printf("start ana\n");
+    printf("start ana : krover\n");
 
     unsigned long ts, te;
     ts = rdtsc();
