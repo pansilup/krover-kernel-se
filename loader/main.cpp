@@ -1837,11 +1837,37 @@ int main(void) {
     //execState->MoniStartOfSE(0xffffffff812ddc30);//addr of x64_sys_lseek
     //execState->MoniStartOfSE(0xffffffff81910660);//addr of x64_sys_bind
     //execState->MoniStartOfSE(0xffffffff81910250);//addr of x64_sys_socket
+    //execState->MoniStartOfSE(0xffffffff812db390);//addr of x64_sys_access
+    //execState->MoniStartOfSE(0xffffffff812ea7f0);//addr of x64_sys_pipe
+    //execState->MoniStartOfSE(0xffffffff81303310);//addr of x64_sys_dup
+    //execState->MoniStartOfSE(0xffffffff813023e0);//addr of x64_sys_dup2
+    //execState->MoniStartOfSE(0xffffffff81144110);//addr of x64_sys_alarm
+    //execState->MoniStartOfSE(0xffffffff812f4ed0);//addr of x64_sys_fcntl
+    //execState->MoniStartOfSE(0xffffffff812e0410);//addr of x64_sys_write
+    //execState->MoniStartOfSE(0xffffffff812dabc0);//addr of x64_sys_truncate
+    //execState->MoniStartOfSE(0xffffffff8131cfc0);//addr of x64_sys_getcwd
+    //execState->MoniStartOfSE(0xffffffff812db4a0);//addr of x64_sys_chdir
+    //execState->MoniStartOfSE(0xffffffff812f2510);//addr of x64_sys_rename
+    //execState->MoniStartOfSE(0xffffffff812f30b0);//addr of x64_sys_mkdir
+    //execState->MoniStartOfSE(0xffffffff812f3300);//addr of x64_sys_rmdir
+    //execState->MoniStartOfSE(0xffffffff812dc170);//addr of x64_sys_creat
+    //execState->MoniStartOfSE(0xffffffff810b5f10);//addr of x64_sys_umask
+    //execState->MoniStartOfSE(0xffffffff810badc0);//addr of x64_sys_getrlimit
+    //execState->MoniStartOfSE(0xffffffff810bad40);//addr of x64_sys_setrlimit
+    //execState->MoniStartOfSE(0xffffffff812f3c90);//addr of x64_sys_link
+    //execState->MoniStartOfSE(0xffffffff812f36e0);//addr of x64_sys_unlink
+    //execState->MoniStartOfSE(0xffffffff812f38b0);//addr of x64_sys_symlink
+    //execState->MoniStartOfSE(0xffffffff812db7e0);//addr of x64_sys_chmod
+    //execState->MoniStartOfSE(0xffffffff812f2f10);//addr of x64_sys_mknod
+    //execState->MoniStartOfSE(0xffffffff81303920);//addr of x64_sys_sysfs
+    //execState->MoniStartOfSE(0xffffffff810cf3b0);//addr of x64_sys_sched_get_priority_max
 
 
     //if uncommenting this chenge the declaration of tmp in centralhub.cpp
     //execState->MoniStartOfSE(0xffffffff810041b0);//addr of indirect call in do_syscall_64 
+
     
+
     to_native();
 
     init_t_ctx(); 

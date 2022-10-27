@@ -163,11 +163,22 @@ KVExprPtr CreateExprByID(int id, KVExprPtr R, KVExprPtr M, KVExprPtr L, int size
         case EXPR_Sge		 :
             exprptr.reset(new SgeExpr(binptr->R, binptr->L, size, offset)) ;
             break ;
+//pp-s
+        case EXPR_Sign      :
+            exprptr.reset(new SignExpr(R, size, offset));
+            break;
+            
+        case EXPR_SignEXT    :
+            exprptr.reset(new SignExtExpr(R, size, offset));
+            break;
+//pp-e
 
         case EXPR_LOr		 :
         case EXPR_LAnd		 :
         case EXPR_LNot		 :
-        case EXPR_SignEXT    :
+//pp-s
+        //case EXPR_SignEXT    :
+//pp-e
         case EXPR_ZeroEXT    :
         case EXPR_Shrd       :
             assert(0);

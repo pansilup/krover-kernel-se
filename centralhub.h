@@ -12,6 +12,32 @@
 #define SCALL_LSEEK             8
 #define SCALL_SOCKET            41
 #define SCALL_BIND              49
+#define SCALL_ACCESS            21
+#define SCALL_PIPE              22
+#define SCALL_DUP               32
+#define SCALL_DUP2              33
+#define SCALL_ALARM             37
+#define SCALL_FCNTL             72
+#define SCALL_STAT              4
+#define SCALL_TRUNCATE          76
+#define SCALL_GETCWD            79    
+#define SCALL_CHDIR             80    
+#define SCALL_RENAME            82    
+#define SCALL_MKDIR             83    
+#define SCALL_RMDIR             84    
+#define SCALL_CREAT             85 
+#define SCALL_UMASK             95    
+#define SCALL_GETRLIMIT         97    
+#define SCALL_SETRLIMIT         160    
+#define SCALL_LINK              86    
+#define SCALL_UNLINK            87
+#define SCALL_SYMLINK           88
+#define SCALL_CHMOD             90
+#define SCALL_MKNOD             133
+#define SCALL_SYSFS             139
+#define SCALL_SCH_GET_PRIO_MAX  146
+
+
 //pp-e
 
 // #include "fatctrl.h"

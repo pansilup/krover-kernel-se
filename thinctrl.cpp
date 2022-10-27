@@ -1130,7 +1130,7 @@ bool CThinCtrl::processFunction(unsigned long addr) {
 #ifdef DEBUG_LOG       
     printf("\n-------------------instruction %lu adr : %lx\n", insn_count, crtAddr);
 #endif
-        //printf("\n-------------------instruction %lu adr : %lx\n", insn_count, crtAddr);
+        printf("\n-------------------instruction %lu adr : %lx\n", insn_count, crtAddr);
         /* get the Insn from the InsnCache or decoding on the site */
         dis_as0 = rdtsc();
         int idx = crtAddr & 0xFFFFFFF; 
@@ -1192,7 +1192,7 @@ bool CThinCtrl::processFunction(unsigned long addr) {
 // #ifdef _DEBUG_OUTPUT
         /* To count the number of conditional instruction and get bExecute
          * from map*/
-        //printf("ins category : %d\n", cate);
+        printf("ins category : %d\n", cate);
         if (m_EFlagsMgr->isConditionalExecuteInstr(in->getOperation().getID()))
         {
             cc_insn_count ++;
@@ -1247,12 +1247,13 @@ bool CThinCtrl::processFunction(unsigned long addr) {
                     bExecute = false;
                     if (!dependFlagCon(in, bExecute)) //instructions involving dependan flag eg : cmov
                     {
+                        //std::cout << "has depepdant flag" << std::endl;
 #ifdef _SYM_DEBUG_OUTPUT
                         // std::cout << "depend on sym flag, at rip " << crtAddr << std::endl;
                         std::cout << "++++++++++depend on sym flag, create constraint at ip" << std::hex << crtAddr << std::endl; 
 #endif                                    
                         symFlag_count ++;
-                        //std::cout << "conditional instr at: " << crtAddr << " . fetch branch decision: " << bExecute << std::endl;
+                        std::cout << "conditional instr at: " << crtAddr << " . fetch branch decision: " << bExecute << std::endl;
                         
                         // bExecute = m_EFlagsMgr->findDecision(crtAddr, cc_insn_count); 
                         // m_EFlagsMgr->CreateConstraint(in->getOperation().getID(), bExecute) ;
@@ -1305,6 +1306,7 @@ bool CThinCtrl::processFunction(unsigned long addr) {
 
                         if (shouldSymExe)
                         {
+                        std::cout << "should sym exe" << std::endl;
 #ifdef _SYM_DEBUG_OUTPUT
                             std::cout << "-------To symexecutor due to symbolic operand at rip "<< std::hex  << crtAddr << " . "  << in->format() << std::endl;
                             std::cout << "insn count: " << insn_count << ". sym executed insn: " << symExe_count << std::endl;
@@ -1385,7 +1387,10 @@ bool CThinCtrl::processFunction(unsigned long addr) {
         // std::cout << " rip " << std::hex << m_regs->rip << std::endl;
 
         // termination condition
-        if (m_regs->rsp >= term_rsp)
+//pp-s
+        //if (m_regs->rsp >= term_rsp) // keeping the equal sign stop the SE of sched_get_priority_max
+        if (m_regs->rsp > term_rsp)
+//pp-e
         {
             t1 = rdtsc();
             std::cout << "######### at end of processFuncyion, rip " << std::hex << m_regs->rip << std::endl;

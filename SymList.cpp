@@ -368,6 +368,15 @@ bool Symbol_List_Map::GetExpr (int64_t addr, int size, int64_t concreteV, KVExpr
     }
     if (i>1) {
         e.reset(new CombineMultiExpr(exprs, offsets, sizes, size, 0)) ;
+        #if 1
+        {
+            //std::cout << "SIZESIZESIZESIZESIZESIZE:" << size << std::endl ;
+            //for (i=0; i<exprs.size(); i++) {
+            //    std::cout << i << " :\t" << sizes[i] << "\t" << offsets[i] << std::endl ;
+            //}
+            
+        }
+        #endif
     } else {
         e = cellList->exprPtr ;
     }

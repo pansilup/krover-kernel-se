@@ -94,7 +94,7 @@ bool ExecState::defineSymbolsForScalls(unsigned long scall_idx, unsigned long tm
     case SCALL_GETPRIORITY:
         printf("case: %d\n", (int)scall_idx);
         tmp += 0x68; //adr of rsi
-        //declareSymbolicObject(tmp, 8, 1, 1, 0x0, "who_rsi");
+        declareSymbolicObject(tmp, 8, 1, 1, 0x0, "who_rsi");
         tmp += 0x8;  //adr of rdi
         declareSymbolicObject(tmp, 8, 1, 1, 1, "which_rdi");
         return true;
@@ -102,8 +102,8 @@ bool ExecState::defineSymbolsForScalls(unsigned long scall_idx, unsigned long tm
     case SCALL_SETPRIORITY:
         printf("case: %d\n", (int)scall_idx);
         tmp += 0x60;  //adr of rdx
-        printf ("nice value: %d. \n", *((unsigned long*)tmp));
-        declareSymbolicObject(tmp, 8, 1, 1, 19, "prio_rdx");
+        //printf ("nice value: %u. \n", *((unsigned long*)tmp));
+        //declareSymbolicObject(tmp, 8, 1, 1, 19, "prio_rdx");
         tmp += 0x8;  //adr of rsi
         declareSymbolicObject(tmp, 8, 1, 1, 0, "who_rsi"); 
         tmp += 0x8;  //adr of rdi
@@ -114,7 +114,7 @@ bool ExecState::defineSymbolsForScalls(unsigned long scall_idx, unsigned long tm
         printf("case: %d\n", (int)scall_idx);
         tmp += 0x60;  //adr of rdx
         //printf ("nice value: %d. \n", *((unsigned long*)tmp));
-        //declareSymbolicObject(tmp, 8, 1, 10, "count_rdx");
+        //declareSymbolicObject(tmp, 8, 1, 1, 10, "count_rdx");
         tmp += 0x8;  //adr of rsi
         //declareSymbolicObject(tmp, 8, 1, 0x0, "buf_rsi"); 
         tmp += 0x8;  //adr of rdi
@@ -139,8 +139,280 @@ bool ExecState::defineSymbolsForScalls(unsigned long scall_idx, unsigned long tm
         tmp += 0x8;  //adr of rsi
         //declareSymbolicObject(tmp, 8, 1, 2, "type_rsi"); 
         tmp += 0x8;  //adr of rdi
-        //declareSymbolicObject(tmp, 8, 1, 2, "domain_rdi");    
+        declareSymbolicObject(tmp, 8, 1, 1, 2, "domain_rdi");    
         return true;
+    case SCALL_ACCESS:
+        printf("case: %d\n", (int)scall_idx);
+        tmp += 0x68; //adr of rsi
+        declareSymbolicObject(tmp, 8, 1, 1, 0x0, "mode_rsi");
+        tmp += 0x8;  //adr of rdi
+        //declareSymbolicObject(tmp, 8, 1, 1, 1, "filename_rdi");
+        return true;
+        //break;
+    case SCALL_PIPE:
+    {
+        printf("case: %d\n", (int)scall_idx);
+        tmp += 0x68; //adr of rsi
+        tmp += 0x8;  //adr of rdi
+        unsigned long fd0_adr = *(unsigned long*)tmp;
+        unsigned long fd1_adr = fd0_adr + 4;
+        printf("tmp : %lx fd2 %d, fd2 %d\n", *(unsigned long*)tmp, *(int *)fd0_adr, *(int *)fd1_adr);
+        declareSymbolicObject( fd0_adr, 4, 1, 1, 0x2, "fd1");
+        declareSymbolicObject( fd1_adr, 4, 1, 1, 0x1, "fd2");
+        return true;
+        //break;
+    }
+    case SCALL_DUP:
+        printf("case: %d\n", (int)scall_idx);
+        tmp += 0x68; //adr of rsi
+        //declareSymbolicObject(tmp, 8, 1, 1, 0x0, "mode_rsi");
+        tmp += 0x8;  //adr of rdi
+        declareSymbolicObject(tmp, 4, 1, 1, 1, "fd_rdi");
+        return true;
+        //break;
+    case SCALL_DUP2:
+        printf("case: %d\n", (int)scall_idx);
+        tmp += 0x68; //adr of rsi
+        //declareSymbolicObject(tmp, 8, 1, 1, 0x0, "mode_rsi");
+        tmp += 0x8;  //adr of rdi
+        declareSymbolicObject(tmp, 4, 1, 1, 1, "fd_rdi");
+        return true;
+        //break;
+    case SCALL_ALARM:
+        printf("case: %d\n", (int)scall_idx);
+        tmp += 0x68; //adr of rsi
+        //declareSymbolicObject(tmp, 8, 1, 1, 0x0, "mode_rsi");
+        tmp += 0x8;  //adr of rdi
+        declareSymbolicObject(tmp, 4, 1, 1, 1, "seconds_rdi");
+        return true;
+        //break;   
+    case SCALL_FCNTL:
+        printf("case: %d\n", (int)scall_idx);
+        tmp += 0x68; //adr of rsi
+        //declareSymbolicObject(tmp, 8, 1, 1, 0x0, "mode_rsi");
+        tmp += 0x8;  //adr of rdi
+        declareSymbolicObject(tmp, 4, 1, 1, 1, "cmd_rdi");
+        return true;
+        //break;
+    case SCALL_STAT:
+    {
+        printf("case: %d\n", (int)scall_idx);
+        tmp += 0x68; //adr of rsi
+        //declareSymbolicObject(tmp, 8, 1, 1, 0x0, "mode_rsi");
+        tmp += 0x8;  //adr of rdi
+        unsigned long filename_start = *(char*)tmp;
+        //declareSymbolicObject(filename_start, 4, 0, 1, 0x74657374, "filename_rdi");
+        return true;
+        //break;
+    }
+    case SCALL_TRUNCATE:
+        printf("case: %d\n", (int)scall_idx);
+        tmp += 0x68; //adr of rsi
+        declareSymbolicObject(tmp, 8, 1, 1, 0x5, "len_rsi");
+        tmp += 0x8;  //adr of rdi
+        //declareSymbolicObject(tmp, 4, 1, 1, 1, "cmd_rdi");
+        return true;
+        //break;
+    case SCALL_GETCWD:
+        printf("case: %d\n", (int)scall_idx);
+        tmp += 0x68; //adr of rsi
+        declareSymbolicObject(tmp, 8, 1, 1, 0x128, "len_rsi");
+        tmp += 0x8;  //adr of rdi
+        //declareSymbolicObject(tmp, 4, 1, 1, 1, "cmd_rdi");
+        return true;
+        //break;
+    case SCALL_CHDIR:
+    {
+        printf("case: %d\n", (int)scall_idx);
+        tmp += 0x68; //adr of rsi
+        //declareSymbolicObject(tmp, 8, 1, 1, 0x128, "len_rsi");
+        tmp += 0x8;  //adr of rdi
+        unsigned long directory_name_adr = *(unsigned long*)tmp;
+        printf("dir nm :%c%c%c\n", *(char*)directory_name_adr, *(char*)(directory_name_adr+1), *(char*)(directory_name_adr+2) );
+        declareSymbolicObject(directory_name_adr    , 1, 0, 1, 0x64, "dirname_rdi_1"); //d
+        declareSymbolicObject(directory_name_adr + 1, 1, 0, 1, 0x69, "dirname_rdi_2"); //i
+        declareSymbolicObject(directory_name_adr + 2, 1, 0, 1, 0x72, "dirname_rdi_3"); //r
+        declareSymbolicObject(directory_name_adr + 3, 1, 0, 1, 0x00, "dirname_rdi_4"); //\0
+        return true;
+        //break;
+    }
+    case SCALL_RENAME:
+    {
+        printf("case: %d\n", (int)scall_idx);
+        tmp += 0x68; //adr of rsi
+        //declareSymbolicObject(tmp, 8, 1, 1, 0x128, "len_rsi");
+        tmp += 0x8;  //adr of rdi
+        unsigned long old_filename_adr = *(unsigned long*)tmp;
+        printf("dir nm :%c%c%c%c\n", *(char*)old_filename_adr, *(char*)(old_filename_adr+1), *(char*)(old_filename_adr+2), *(char*)(old_filename_adr+3) );
+        declareSymbolicObject(old_filename_adr    , 1, 0, 1, 0x6f, "fname_rdi_1"); //o
+        declareSymbolicObject(old_filename_adr + 1, 1, 0, 1, 0x6c, "fname_rdi_2"); //l
+        declareSymbolicObject(old_filename_adr + 2, 1, 0, 1, 0x64, "fname_rdi_3"); //d
+        //declareSymbolicObject(old_filename_adr + 3, 1, 0, 1, 0x00, "fname_rdi_4"); //\0
+        return true;
+        //break;
+    }
+    case SCALL_MKDIR:
+    {
+        printf("case: %d\n", (int)scall_idx);
+        tmp += 0x68; //adr of rsi
+        //declareSymbolicObject(tmp, 8, 1, 1, 0x128, "len_rsi");
+        tmp += 0x8;  //adr of rdi
+        unsigned long directory_name_adr = *(unsigned long*)tmp;
+        printf("dir nm :%c%c%c\n", *(char*)directory_name_adr, *(char*)(directory_name_adr+1), *(char*)(directory_name_adr+2) );
+        declareSymbolicObject(directory_name_adr    , 1, 0, 1, 0x64, "dirname_rdi_1"); //d
+        declareSymbolicObject(directory_name_adr + 1, 1, 0, 1, 0x69, "dirname_rdi_2"); //i
+        declareSymbolicObject(directory_name_adr + 2, 1, 0, 1, 0x72, "dirname_rdi_3"); //r
+        //declareSymbolicObject(directory_name_adr + 2, 1, 0, 1, 0x00, "dirname_rdi_4"); //\0
+        return true;
+        //break;
+    }
+    case SCALL_RMDIR:
+    {
+        printf("case: %d\n", (int)scall_idx);
+        tmp += 0x68; //adr of rsi
+        //declareSymbolicObject(tmp, 8, 1, 1, 0x128, "len_rsi");
+        tmp += 0x8;  //adr of rdi
+        unsigned long directory_name_adr = *(unsigned long*)tmp;
+        printf("dir nm :%c%c%c\n", *(char*)directory_name_adr, *(char*)(directory_name_adr+1), *(char*)(directory_name_adr+2) );
+        declareSymbolicObject(directory_name_adr    , 1, 0, 1, 0x64, "dirname_rdi_1"); //d
+        declareSymbolicObject(directory_name_adr + 1, 1, 0, 1, 0x69, "dirname_rdi_2"); //i
+        declareSymbolicObject(directory_name_adr + 2, 1, 0, 1, 0x72, "dirname_rdi_3"); //r
+        //declareSymbolicObject(directory_name_adr + 2, 1, 0, 1, 0x00, "dirname_rdi_4"); //\0
+        return true;
+        //break;
+    }
+    case SCALL_CREAT:
+    {
+        printf("case: %d\n", (int)scall_idx);
+        tmp += 0x68; //adr of rsi
+        //declareSymbolicObject(tmp, 8, 1, 1, 0x128, "len_rsi");
+        tmp += 0x8;  //adr of rdi
+        unsigned long file_name_adr = *(unsigned long*)tmp;
+        printf("file nm :%c%c%c\n", *(char*)file_name_adr, *(char*)(file_name_adr+1), *(char*)(file_name_adr+2) );
+        declareSymbolicObject(file_name_adr    , 1, 0, 1, 0x6f, "fname_rdi_1"); //o
+        declareSymbolicObject(file_name_adr + 1, 1, 0, 1, 0x6c, "fname_rdi_2"); //l
+        declareSymbolicObject(file_name_adr + 2, 1, 0, 1, 0x64, "fname_rdi_3"); //d
+        //declareSymbolicObject(directory_name_adr + 2, 1, 0, 1, 0x00, "dirname_rdi_4"); //\0
+        return true;
+        //break;
+    }
+    case SCALL_UMASK:
+        printf("case: %d\n", (int)scall_idx);
+        tmp += 0x68; //adr of rsi
+        //declareSymbolicObject(tmp, 8, 1, 1, 0x0, "mode_rsi");
+        tmp += 0x8;  //adr of rdi
+        declareSymbolicObject(tmp, 8, 1, 1, 0x0, "fd_rdi");
+        return true;
+        //break;
+    case SCALL_GETRLIMIT:
+        printf("case: %d\n", (int)scall_idx);
+        tmp += 0x68; //adr of rsi
+        //declareSymbolicObject(tmp, 8, 1, 1, 0x0, "mode_rsi");
+        tmp += 0x8;  //adr of rdi
+        declareSymbolicObject(tmp, 8, 1, 1, 0x7, "resource_rdi"); //seed val 7 : RLIMIT_NOFILE
+        return true;
+        //break;
+    case SCALL_SETRLIMIT:
+        printf("case: %d\n", (int)scall_idx);
+        tmp += 0x68; //adr of rsi
+        //declareSymbolicObject(tmp, 8, 1, 1, 0x0, "mode_rsi");
+        tmp += 0x8;  //adr of rdi
+        declareSymbolicObject(tmp, 8, 1, 1, 0x7, "resource_rdi"); //seed val 7 : RLIMIT_NOFILE
+        return true;
+        //break;
+    case SCALL_LINK:
+    {
+        printf("case: %d\n", (int)scall_idx);
+        tmp += 0x68; //adr of rsi
+        //declareSymbolicObject(tmp, 8, 1, 1, 0x128, "len_rsi");
+        tmp += 0x8;  //adr of rdi
+        unsigned long old_filename_adr = *(unsigned long*)tmp;
+        printf("file nm :%c%c%c%c\n", *(char*)old_filename_adr, *(char*)(old_filename_adr+1), *(char*)(old_filename_adr+2), *(char*)(old_filename_adr+3) );
+        declareSymbolicObject(old_filename_adr    , 1, 0, 1, 0x6f, "fname_rdi_1"); //o
+        declareSymbolicObject(old_filename_adr + 1, 1, 0, 1, 0x6c, "fname_rdi_2"); //l
+        declareSymbolicObject(old_filename_adr + 2, 1, 0, 1, 0x64, "fname_rdi_3"); //d
+        //declareSymbolicObject(old_filename_adr + 3, 1, 0, 1, 0x00, "fname_rdi_4"); //\0
+        return true;
+        //break;
+    }
+    case SCALL_UNLINK:
+    {
+        printf("case: %d\n", (int)scall_idx);
+        tmp += 0x68; //adr of rsi
+        //declareSymbolicObject(tmp, 8, 1, 1, 0x128, "len_rsi");
+        tmp += 0x8;  //adr of rdi
+        unsigned long old_filename_adr = *(unsigned long*)tmp;
+        printf("file nm :%c%c%c%c\n", *(char*)old_filename_adr, *(char*)(old_filename_adr+1), *(char*)(old_filename_adr+2), *(char*)(old_filename_adr+3) );
+        declareSymbolicObject(old_filename_adr    , 1, 0, 1, 0x6f, "fname_rdi_1"); //o
+        declareSymbolicObject(old_filename_adr + 1, 1, 0, 1, 0x6c, "fname_rdi_2"); //l
+        declareSymbolicObject(old_filename_adr + 2, 1, 0, 1, 0x64, "fname_rdi_3"); //d
+        //declareSymbolicObject(old_filename_adr + 3, 1, 0, 1, 0x00, "fname_rdi_4"); //\0
+        return true;
+        //break;
+    }
+    case SCALL_SYMLINK:
+    {
+        printf("case: %d\n", (int)scall_idx);
+        tmp += 0x68; //adr of rsi
+        //declareSymbolicObject(tmp, 8, 1, 1, 0x128, "len_rsi");
+        tmp += 0x8;  //adr of rdi
+        unsigned long old_filename_adr = *(unsigned long*)tmp;
+        printf("file nm :%c%c%c%c\n", *(char*)old_filename_adr, *(char*)(old_filename_adr+1), *(char*)(old_filename_adr+2), *(char*)(old_filename_adr+3) );
+        declareSymbolicObject(old_filename_adr    , 1, 0, 1, 0x6f, "fname_rdi_1"); //o
+        declareSymbolicObject(old_filename_adr + 1, 1, 0, 1, 0x6c, "fname_rdi_2"); //l
+        declareSymbolicObject(old_filename_adr + 2, 1, 0, 1, 0x64, "fname_rdi_3"); //d
+        //declareSymbolicObject(old_filename_adr + 3, 1, 0, 1, 0x00, "fname_rdi_4"); //\0
+        return true;
+        //break;
+    }
+    case SCALL_CHMOD:
+    {
+        printf("case: %d\n", (int)scall_idx);
+        tmp += 0x68; //adr of rsi
+        //declareSymbolicObject(tmp, 8, 1, 1, 0x128, "len_rsi");
+        tmp += 0x8;  //adr of rdi
+        unsigned long old_filename_adr = *(unsigned long*)tmp;
+        printf("file nm :%c%c%c%c\n", *(char*)old_filename_adr, *(char*)(old_filename_adr+1), *(char*)(old_filename_adr+2), *(char*)(old_filename_adr+3) );
+        declareSymbolicObject(old_filename_adr    , 1, 0, 1, 0x6f, "fname_rdi_1"); //o
+        declareSymbolicObject(old_filename_adr + 1, 1, 0, 1, 0x6c, "fname_rdi_2"); //l
+        declareSymbolicObject(old_filename_adr + 2, 1, 0, 1, 0x64, "fname_rdi_3"); //d
+        //declareSymbolicObject(old_filename_adr + 3, 1, 0, 1, 0x00, "fname_rdi_4"); //\0
+        return true;
+        //break;
+    }
+    case SCALL_MKNOD:
+    {
+        printf("case: %d\n", (int)scall_idx);
+        tmp += 0x60; //adr of rdx
+        declareSymbolicObject(tmp, 8, 1, 1, 0100000, "mode_rdx"); // type= S_IFREG :0100000
+        tmp += 0x8; //adr of rsi
+        //declareSymbolicObject(tmp, 8, 1, 1, 777, "mode_rsi");
+        tmp += 0x8;  //adr of rdi
+        unsigned long old_filename_adr = *(unsigned long*)tmp;
+        printf("node nm :%c%c%c%c\n", *(char*)old_filename_adr, *(char*)(old_filename_adr+1), *(char*)(old_filename_adr+2), *(char*)(old_filename_adr+3) );
+        //declareSymbolicObject(old_filename_adr    , 1, 0, 1, 0x6f, "nodename_rdi_1"); //o
+        //declareSymbolicObject(old_filename_adr + 1, 1, 0, 1, 0x6c, "nodename_rdi_2"); //l
+        //declareSymbolicObject(old_filename_adr + 2, 1, 0, 1, 0x64, "nodename_rdi_3"); //d
+        //declareSymbolicObject(old_filename_adr + 3, 1, 0, 1, 0x00, "fname_rdi_4"); //\0
+        return true;
+        //break;
+    }
+    case SCALL_SYSFS:
+        printf("case: %d\n", (int)scall_idx);
+        tmp += 0x68; //adr of rsi
+        //declareSymbolicObject(tmp, 8, 1, 1, 0x0, "mode_rsi");
+        tmp += 0x8;  //adr of rdi
+        declareSymbolicObject(tmp, 4, 1, 1, 3, "option_rdi");
+        return true;
+        //break;
+    case SCALL_SCH_GET_PRIO_MAX:
+        printf("case: %d\n", (int)scall_idx);
+        tmp += 0x68; //adr of rsi
+        //declareSymbolicObject(tmp, 8, 1, 1, 0x0, "mode_rsi");
+        tmp += 0x8;  //adr of rdi
+        declareSymbolicObject(tmp, 4, 1, 1, 1, "policy_rdi"); //policy = SCHED_FIFO 1
+        return true;
+        //break;
     default:
         break;
     }
@@ -158,8 +430,8 @@ bool ExecState::processAt(ulong addr) {
     printf ("rax: %lx, rdi:%lx, rsi: %lx, rdx: %lx. \n", m_regs->regs.rax, m_regs->regs.rdi, m_regs->regs.rsi, m_regs->regs.rdx);
     
     //pp-s
-    unsigned long tmp = m_regs->regs.rdi; //base address of pt_regs object passed to syscall handler
-    //unsigned long tmp = m_regs->regs.rsi; //base address of pt_regs object passed to do_syscall_64
+    //unsigned long tmp = m_regs->regs.rdi; //base address of pt_regs object passed to syscall handler
+    unsigned long tmp = m_regs->regs.rsi; //base address of pt_regs object passed to do_syscall_64
     //pp-e
 
     printf ("fs_base: %lx, gs_base:%lx . \n", m_regs->fs_base, m_regs->gs_base);

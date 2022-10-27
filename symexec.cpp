@@ -42,7 +42,8 @@ bool SymExecutor::run(VMState *vm) {
         m_RIPUpdated = false;
 
         entryID id = I->getOperation().getID() ;
-
+        std::cout << "ins operation :" << id << std::endl;
+        
         switch (id) {
             case e_mov:
             case e_movbe:
@@ -99,6 +100,7 @@ bool SymExecutor::run(VMState *vm) {
             case e_cbw:
             case e_cwde:
             case e_cwtl: {
+                //std::cout << "calling process_cbw" << std::endl;
                 process_cbw(vm, IOI);
             } break;
 
@@ -215,10 +217,7 @@ bool SymExecutor::run(VMState *vm) {
             case e_cmovpo:
             case e_cmovs: {
                 process_cmovxx(vm, IOI) ;
-                break ;
-            }
-            case e_ja:
-	        case e_jb:
+            }   break ;
 	        case e_jbe:
 	        case e_je:
 	        case e_jge:
@@ -596,7 +595,13 @@ bool SymExecutor::process_cmp(VMState *vm, InstrInfoPtr &infoptr) {
         long v2;
         res = oisrc2->getConValue(v2);
         assert(res);
-        ExprPtr c2(new ConstExpr(v2, oisrc2->size, 0));
+        //pp-s
+        //ExprPtr c2(new ConstExpr(v2, oisrc2->size, 0));
+        //the size of the constant expression set by dyninst(oisrc2->size) is wrong
+        //therefore, we use the size of the symbolic operand(oisrc1->size) to generate the constant expression
+        ExprPtr c2(new ConstExpr(v2, oisrc1->size, 0)); 
+        //std::cout << "--------------oprnd sz:" << oisrc2->size << std::endl;
+        //pp-e
         oe.reset(new SubExpr(e1, c2));
     }
 
@@ -608,7 +613,13 @@ bool SymExecutor::process_cmp(VMState *vm, InstrInfoPtr &infoptr) {
         long v1;
         res = oisrc1->getConValue(v1);
         assert(res);
-        ExprPtr c1(new ConstExpr(v1,oisrc1->size, 0));
+        //pp-s
+        //ExprPtr c1(new ConstExpr(v1,oisrc1->size, 0));
+        //the size of the constant expression set by dyninst(oisrc1->size) is wrong
+        //therefore, we use the size of the symbolic operand(oisrc2->size) to generate the constant expression
+        ExprPtr c1(new ConstExpr(v1,oisrc2->size, 0));
+        //std::cout << "--------------oprnd sz:" << oisrc1->size << std::endl;
+        //pp-e
         oe.reset(new SubExpr(c1, e2));
     } else {
         ERRR_ME("Unexpected operands");
@@ -1364,6 +1375,8 @@ bool SymExecutor::process_movzx(VMState *vm, InstrInfoPtr &infoptr) {
     return true;
 }
 
+//pp-s
+/*
 bool SymExecutor::process_cbw(VMState *vm, InstrInfoPtr &infoptr) {
     // eax sign extend to rax like
     auto &vecOI = infoptr->vecOI;
@@ -1410,6 +1423,120 @@ bool SymExecutor::process_cbw(VMState *vm, InstrInfoPtr &infoptr) {
 
     return true;
 }
+*/
+#if 1
+bool SymExecutor::process_cbw(VMState *vm, InstrInfoPtr &infoptr) {
+    // eax sign extend to rax like
+    std::cout << "at process_cbw" << std::endl;
+    auto &vecOI = infoptr->vecOI;
+    OprndInfoPtr &oisrc = vecOI[0];
+    KVExprPtr e, oe ;
+    RegValue rv, rvdest ;
+    bool res ;    
+
+    assert (oisrc->symb) ;
+    //std::cout << "source reg:" << oisrc->reg_index << ", source reg size:" << oisrc->size << std::endl;
+    res = oisrc->getSymValue(e) ;
+    assert (res) ;
+    rv.isSymList = false ;
+    
+    switch (oisrc->size) {
+        case 2:
+            rv.indx = x86_64::al ;
+            rv.size = 1 ;
+            break ;
+        case 4:
+            rv.indx = x86_64::ax ;
+            rv.size = 2 ;
+            break ;
+        case 8:
+            std::cout << "reg size 4" << std::endl;
+            rv.indx = x86_64::eax ;
+            rv.size = 4 ;
+            break ;
+        default :
+        // WTF?
+            assert (0) ;
+    }
+    res = vm->readRegister(rv) ;
+    assert (res) ;
+
+    if(rv.bsym)
+    {
+        oe.reset(new SignExtExpr(e, oisrc->size, 0)) ;
+        res = oisrc->setSymValue(vm, oe) ;
+        assert (res) ;
+    }
+    else
+    {         
+        rvdest.bsym = false ;
+        rvdest.isSymList = false;
+        rvdest.size = oisrc->size;
+
+        switch (oisrc->size) {
+        case 2:
+            rvdest.indx = x86_64::ax ;
+            rvdest.i16 = (rv.i8 & 0x80) ? (0xff00 | rv.i8) : rv.i8;
+            break ;
+        case 4:
+            rvdest.indx = x86_64::eax ;
+            rvdest.i32 = (rv.i16 & 0x8000) ? (0xffff0000 | rv.i16) : rv.i16;
+            break ;
+        case 8:
+            rvdest.indx = x86_64::rax ;
+            //std::cout << "bfr extnd i64 : " << std::hex << rvdest.i64 << " ,i32 : " << rv.i32 << std::endl;
+            rvdest.i64 = (rv.i32 & 0x80000000) ? (0xffffffff00000000 | rv.i32) : rv.i32;
+            //std::cout << "aft extnd i64 : " << std::hex << rvdest.i64 << " ,i32 : " << rv.i32 << std::endl;
+            break ;
+        default :
+            assert (0) ;
+        }
+        res = vm->writeRegister(rvdest);
+        assert(res);
+    }
+
+    return true;
+}
+#else if 0
+bool SymExecutor::process_cbw(VMState *vm, InstrInfoPtr &infoptr) {
+    // eax sign extend to rax like
+    std::cout << "at process_cbw" << std::endl;
+    auto &vecOI = infoptr->vecOI;
+    OprndInfoPtr &oisrc = vecOI[0];
+    KVExprPtr e, oe ;
+    bool res ;    
+
+    assert (oisrc->symb) ;
+
+    std::cout << "source reg:" << oisrc->reg_index << ", source reg size:" << oisrc->size << std::endl;
+    
+    res = oisrc->getSymValue(e) ;
+    assert (res) ;
+
+    std::cout << "source :" ;
+    e->print() ;
+    std::cout << std::endl ;
+
+    oe.reset(new ExtractExpr(e, 0, oisrc->size/2, oisrc->size/2, 0)) ;
+
+    std::cout << "ExtractExpr expr:" ;
+    oe->print() ;
+    std::cout << std::endl ;
+
+    oe.reset(new SignExtExpr(oe, oisrc->size, 0)) ;
+
+    std::cout << "SignExtExpr expr:" ;
+    oe->print() ;
+    std::cout << std::endl ;
+
+    res = oisrc->setSymValue(vm, oe) ;
+    assert (res) ;
+
+
+    return true;
+}
+#endif
+//pp-e
 
 bool SymExecutor::process_cdq(VMState *vm, InstrInfoPtr &infoptr) {
     // eax sign extend to edx::eax like

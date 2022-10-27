@@ -411,6 +411,7 @@ bool EFlagsManager::DependencyFlagConcreted(entryID instrID, bool &bExecute) {
         case e_jb:
         case e_jb_jnaej_j:
         case e_cmovnae:
+        case e_sbb:
         case e_setb:
             // B/NAE/Carry;		(CF=1)
             ret = (m_VM->FlagBitDefinited(x86_64::cf)) ;
@@ -743,6 +744,9 @@ bool EFlagsManager::EvalCondition(entryID insnID)
 {
     bool bExecute = false;
 
+    //pp-s
+    std:cout << "inst id : " << insnID << std::endl;
+    //pp-e
     std::set<KVExprPtr> constraints;
     KVExprPtr exprPtr = GetCondition(insnID);
     if (exprPtr)
@@ -774,6 +778,7 @@ bool EFlagsManager::EvalCondition(entryID insnID)
         }
 
         bExecute = m_Z3Handler->Z3SolveConcritize(symobjs, constraints);
+        printf("ret from Z3SolveConcritize \n");
         //std::cout << "----------bExecute: " << bExecute << std::endl; 
         //exprPtr->print() ;
         //std::cout << "\n" ;
@@ -823,12 +828,16 @@ KVExprPtr EFlagsManager::DoGetCondition(int exprID) {
 
     // if (!bExecute)
     //     cstnt.reset(new LNotExpr(cstnt, cstnt->size, cstnt->offset)) ;
+    if(cstnt)
+        std::cout << "not null" << std::endl;
     
     return cstnt ;
 }
 
 KVExprPtr EFlagsManager::GetCondition(entryID instrID) {
-    
+    //pp-s
+    std:cout << "at GetCondition ; inst id : " << instrID << std::endl;
+    //pp-e
     int exprID = EXPR_UNDEFINED ;
     if (!isConditionalExecuteInstr(instrID)) 
         // return false ;
@@ -863,6 +872,7 @@ KVExprPtr EFlagsManager::GetCondition(entryID instrID) {
         case e_jb_jnaej_j:
         case e_cmovnae:
         case e_setb:
+        case e_sbb:
             // B/NAE/Carry;		(CF=1)
             exprID = EXPR_Ult ;
             break ;
@@ -962,6 +972,7 @@ KVExprPtr EFlagsManager::GetCondition(entryID instrID) {
     }
     
     if(exprID != EXPR_UNDEFINED) {
+        std::cout << " exprid " << exprID << std::endl ;
         return DoGetCondition (exprID) ;
         // return true ;
     } else
